@@ -17,7 +17,7 @@ export default function RegisterPage() {
 
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/register`,
+        `${import.meta.env.VITE_API_URL || "https://tmsbackend-psi.vercel.app"}/api/auth/register`,
         { name, email, password, role }
       );
       setMsg("Registration successful — you can now log in.");
