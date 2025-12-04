@@ -6,7 +6,7 @@ import axios from "axios";
 // AXIOS INSTANCE
 // ===============================
 const http = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://tmsbackend-psi.vercel.app/",
+  baseURL: import.meta.env.VITE_API_URL || "https://tmsbackend-psi.vercel.app/api",
   headers: {
     "Content-Type": "application/json",
   },
