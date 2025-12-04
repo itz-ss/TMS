@@ -1,0 +1,56 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.dashboard-title {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.dashboard-cards {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.dashboard-card {
+  border: 1px solid #ddd;
+  padding: 18px;
+  border-radius: 10px;
+  width: 220px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.dashboard-number {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+/* 🔥 New styling for user table */
+.dashboard-table-container {
+  margin-top: 30px;
+}
+
+.dashboard-subtitle {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.dashboard-table th {
+  text-align: left;
+  background: #f6f6f6;
+}

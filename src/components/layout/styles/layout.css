@@ -1,0 +1,36 @@
+.app-layout {
+  display: flex;
+  background: #fafafa;
+  min-height: 100vh;
+}
+
+/* Main area (Topbar + content) */
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 13.75rem;   /* 220px — width of sidebar */
+  transition: margin-left 0.3s ease;
+}
+
+/* Topbar is fixed inside main container */
+.layout-content {
+  padding: 1.5rem;         /* 24px */
+  overflow-y: auto;
+  flex: 1;
+  margin-top: 3.75rem;     /* 60px — height of Topbar */
+}
+
+/* Tablet view — collapsed sidebar */
+@media (max-width: 1023px) {
+  .layout-main {
+    margin-left: 4.375rem; /* 70px */
+  }
+}
+
+/* Mobile — sidebar hidden */
+@media (max-width: 768px) {
+  .layout-main {
+    margin-left: 0;
+  }
+}
