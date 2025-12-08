@@ -3,34 +3,67 @@ import React, { useState, useEffect, useRef } from "react";
 import { submitWork, reviseTask, approveTask } from "../pages/api";
 import "../styles/tasks.css";
 
-export default function TaskChatModal({ task, currentUser, canApprove, canRevise, onClose, onUpdate }) {
+export default function TaskChatModal({
+  task,
+  currentUser,
+  canApprove,
+  canRevise,
+  onClose,
+  onUpdate,
+}) {
   const [messages, setMessages] = useState([]);
   const [inputNotes, setInputNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const isAssignedToMe = task.assignee?._id?.toString() === currentUser?._id?.toString();
-  const isEmployee = !canApprove && isAssignedToMe;
+  /* ---------------------------------------------------
+     FIXED ROLE LOGIC:
+     → Any user assigned to the task can submit work
+     → Manager/Admin still have approve & revise
+  ---------------------------------------------------- */
+  const isAssignedToMe =
+    task.assignee?._id?.toString() === currentUser?._id?.toString();
+
+  const canSubmitWork =
+    isAssignedToMe &&
+    ["assigned", "in-progress", "revisions"].includes(task.status);
+
   const isManager = canApprove || canRevise;
 
+  /* ---------------------------------------------------
+     Build message list from history + submission fields
+  ---------------------------------------------------- */
   useEffect(() => {
-    // Build messages from history array
     const historyMessages = (task.history || [])
-      .filter((h) => h.action === "submit" || h.action === "revise" || h.action === "approve")
+      .filter(
+        (h) =>
+          h.action === "submit" ||
+          h.action === "revise" ||
+          h.action === "approve"
+      )
       .map((h) => ({
-        type: h.action === "revise" ? "revision" : h.action === "submit" ? "submission" : h.action,
+        type:
+          h.action === "revise"
+            ? "revision"
+            : h.action === "submit"
+            ? "submission"
+            : h.action,
         notes: h.notes,
         date: h.date,
         user: h.user,
       }));
 
-    // Add current submission/revision if exists and not already in history
     const currentMessages = [];
+
     if (task.submissionNotes && task.submittedAt) {
-      const existsInHistory = historyMessages.some(
-        (m) => m.type === "submission" && new Date(m.date).getTime() === new Date(task.submittedAt).getTime()
+      const exists = historyMessages.some(
+        (m) =>
+          m.type === "submission" &&
+          new Date(m.date).getTime() ===
+            new Date(task.submittedAt).getTime()
       );
-      if (!existsInHistory) {
+
+      if (!exists) {
         currentMessages.push({
           type: "submission",
           notes: task.submissionNotes,
@@ -38,11 +71,16 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
         });
       }
     }
+
     if (task.revisionNotes && task.revisionRequestedAt) {
-      const existsInHistory = historyMessages.some(
-        (m) => m.type === "revision" && new Date(m.date).getTime() === new Date(task.revisionRequestedAt).getTime()
+      const exists = historyMessages.some(
+        (m) =>
+          m.type === "revision" &&
+          new Date(m.date).getTime() ===
+            new Date(task.revisionRequestedAt).getTime()
       );
-      if (!existsInHistory) {
+
+      if (!exists) {
         currentMessages.push({
           type: "revision",
           notes: task.revisionNotes,
@@ -62,6 +100,9 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  /* ---------------------------------------------------
+     Submit Work
+  ---------------------------------------------------- */
   async function handleSubmitWork() {
     if (!inputNotes.trim()) {
       alert("Please enter submission notes");
@@ -80,6 +121,9 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
     }
   }
 
+  /* ---------------------------------------------------
+     Request Revision
+  ---------------------------------------------------- */
   async function handleRequestRevision() {
     if (!inputNotes.trim()) {
       alert("Please enter revision notes");
@@ -98,6 +142,9 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
     }
   }
 
+  /* ---------------------------------------------------
+     Approve Task
+  ---------------------------------------------------- */
   async function handleApprove() {
     if (!confirm("Approve this task?")) return;
 
@@ -105,33 +152,40 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
     const res = await approveTask(task._id);
     setLoading(false);
 
-    if (res.success) {
-      onUpdate();
-    } else {
-      alert(res.error || "Failed to approve task");
-    }
+    if (res.success) onUpdate();
+    else alert(res.error || "Failed to approve task");
   }
 
+  /* ---------------------------------------------------
+     UI Rendering
+  ---------------------------------------------------- */
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content task-chat-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content task-chat-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <h2>{task.title}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <button className="modal-close" onClick={onClose}>
+            ×
+          </button>
         </div>
 
+        {/* ---------------- CHAT MESSAGES ---------------- */}
         <div className="chat-messages">
           {messages.length === 0 ? (
             <div className="chat-empty">No messages yet</div>
           ) : (
             messages.map((msg, idx) => {
               const isRevision = msg.type === "revision";
-              const isSubmission = msg.type === "submission";
 
               return (
                 <div
                   key={idx}
-                  className={`chat-bubble ${isRevision ? "chat-bubble-left" : "chat-bubble-right"}`}
+                  className={`chat-bubble ${
+                    isRevision ? "chat-bubble-left" : "chat-bubble-right"
+                  }`}
                   style={{
                     backgroundColor: isRevision ? "#f0f0f0" : "#007bff",
                     color: isRevision ? "#333" : "white",
@@ -143,9 +197,8 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
                     marginBottom: "12px",
                   }}
                 >
-                  <div className="chat-message-text">{msg.notes}</div>
+                  <div>{msg.notes}</div>
                   <div
-                    className="chat-message-date"
                     style={{
                       fontSize: "0.75rem",
                       opacity: 0.7,
@@ -161,9 +214,18 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
           <div ref={messagesEndRef} />
         </div>
 
+        {/* ---------------- INPUT AREA ---------------- */}
         <div className="chat-input-area">
+          {/* Manager Buttons (Approve + Revision) */}
           {task.status === "submitted" && isManager && (
-            <div className="chat-actions" style={{ marginBottom: "12px", display: "flex", gap: "8px" }}>
+            <div
+              className="chat-actions"
+              style={{
+                marginBottom: "12px",
+                display: "flex",
+                gap: "8px",
+              }}
+            >
               {canRevise && (
                 <button
                   onClick={handleRequestRevision}
@@ -174,6 +236,7 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
                   Request Revision
                 </button>
               )}
+
               {canApprove && (
                 <button
                   onClick={handleApprove}
@@ -187,45 +250,47 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
             </div>
           )}
 
-          {((isEmployee && ["assigned", "in-progress", "revisions"].includes(task.status)) ||
-            (isManager && task.status === "submitted" && canRevise)) && (
+          {/* Submit Work (Any assigned user) */}
+          {canSubmitWork && (
             <div className="chat-input-wrapper">
               <textarea
                 value={inputNotes}
                 onChange={(e) => setInputNotes(e.target.value)}
-                placeholder={
-                  isEmployee
-                    ? "Enter submission notes..."
-                    : "Enter revision notes..."
-                }
+                placeholder="Enter submission notes..."
                 rows={3}
                 style={{
                   width: "100%",
                   padding: "8px",
                   borderRadius: "4px",
                   border: "1px solid #ddd",
-                  resize: "vertical",
                 }}
               />
-              {isEmployee && (
-                <button
-                  onClick={handleSubmitWork}
-                  disabled={loading || !inputNotes.trim()}
-                  className="btn-sm"
-                  style={{
-                    marginTop: "8px",
-                    backgroundColor: "#007bff",
-                    color: "white",
-                  }}
-                >
-                  {loading ? "Submitting..." : "Submit Work"}
-                </button>
-              )}
+
+              <button
+                onClick={handleSubmitWork}
+                disabled={loading || !inputNotes.trim()}
+                className="btn-sm"
+                style={{
+                  marginTop: "8px",
+                  backgroundColor: "#007bff",
+                  color: "white",
+                }}
+              >
+                {loading ? "Submitting..." : "Submit Work"}
+              </button>
             </div>
           )}
 
+          {/* Completed Message */}
           {task.status === "approved" && (
-            <div style={{ padding: "12px", backgroundColor: "#d4edda", borderRadius: "4px", color: "#155724" }}>
+            <div
+              style={{
+                padding: "12px",
+                backgroundColor: "#d4edda",
+                borderRadius: "4px",
+                color: "#155724",
+              }}
+            >
               ✓ Task has been approved
             </div>
           )}
@@ -234,4 +299,3 @@ export default function TaskChatModal({ task, currentUser, canApprove, canRevise
     </div>
   );
 }
-
