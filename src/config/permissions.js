@@ -9,6 +9,8 @@ export const permissionsMatrix = {
     canDeleteTask: true,
     canViewAllTasks: true,
     canUpdateAnyTask: true,
+    canViewClients: true,
+    canCreateClients: true,
   },
 
   manager: {
@@ -19,6 +21,8 @@ export const permissionsMatrix = {
     canDeleteTask: true,
     canViewAllTasks: true,
     canUpdateAnyTask: true,
+    canViewClients: true,
+    canCreateClients: true,
   },
 
   // All other roles (intern, employee, viewer, unknown)
@@ -30,6 +34,8 @@ export const permissionsMatrix = {
     canDeleteTask: false,
     canViewAllTasks: false,
     canUpdateAnyTask: false,
+    canViewClients: true,
+    canCreateClients: false,
   },
 };
 

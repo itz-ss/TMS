@@ -5,12 +5,28 @@ import axios from "axios";
 // ===============================
 // AXIOS INSTANCE
 // ===============================
+// Resolve API base URL with sensible fallbacks:
+// 1) VITE_API_URL (preferred)
+// 2) Derive from VITE_SOCKET_URL by appending "/api" (if provided)
+// 3) Fallback to current origin + "/api" (useful when frontend served by backend)
+const apiFromEnv = import.meta.env.VITE_API_URL;
+const socketUrl = import.meta.env.VITE_SOCKET_URL;
+const derivedFromSocket =
+  socketUrl && socketUrl.endsWith("/api")
+    ? socketUrl
+    : socketUrl
+    ? `${socketUrl.replace(/\/$/, "")}/api`
+    : null;
+const fallbackOrigin = `${window.location.origin}/api`;
+
 const http = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://tmsbackend-psi.vercel.app/api",
+  baseURL: apiFromEnv || derivedFromSocket || fallbackOrigin,
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+console.log("[httpClient] Base URL:", http.defaults.baseURL);
 
 // ===============================
 // REQUEST INTERCEPTOR

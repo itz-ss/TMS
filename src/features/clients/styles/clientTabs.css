@@ -1,0 +1,27 @@
+.client-tabs-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  white-space: nowrap;
+}
+
+.client-tab {
+  background: #f1f1f1;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.15s;
+}
+
+.client-tab:hover { background: #e6e6e6; }
+
+.client-tab.active {
+  background: #007bff;
+  color: white;
+}
+
+.client-dropdown-container { width: 100%; }
+.client-dropdown { width: 100%; padding: 10px; border-radius: 6px; }

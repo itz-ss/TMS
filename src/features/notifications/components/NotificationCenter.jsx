@@ -1,60 +1,101 @@
-// NotificationCenter.jsx
-// Displays notifications for the current user
-// Author: GitHub Copilot (GPT-4.1)
+// src/features/notifications/components/NotificationCenter.jsx
+// Full real-time + Redux-synced notification center
 
-import React, { useEffect, useState } from 'react';
-import { fetchNotifications, markNotificationRead } from '../pages/api';
+import React, { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 
-/*
-  NotificationCenter
-  - Fetches notifications from backend
-  - Displays notifications in a panel
-  - Allows marking notifications as read
-  - Well-commented for future edits
-*/
+import {
+  loadNotificationsThunk,
+  markReadThunk,
+  markReadLocal,
+  receiveNotification,
+} from "../../../store/notificationSlice";
+
+import { socket } from "../../../services/socket";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function NotificationCenter() {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useAppDispatch();
+  const { items: notifications, loading, error } = useAppSelector(
+    (s) => s.notifications
+  );
+  const user = useAppSelector((s) => s.auth.user);
 
+  /* -------------------------------------------------------
+     Load notifications when user is ready
+  ------------------------------------------------------- */
   useEffect(() => {
-    async function loadNotifications() {
-      setLoading(true);
-      const res = await fetchNotifications();
-      if (res.success) {
-        setNotifications(res.notifications || []);
-        setError(null);
-      } else {
-        setNotifications([]);
-        setError(res.error);
-      }
-      setLoading(false);
-    }
-    loadNotifications();
-  }, []);
+    if (!user?._id) return;
+    dispatch(loadNotificationsThunk());
+  }, [dispatch, user]);
 
-  // Mark notification as read
-  async function handleMarkRead(id) {
-    const res = await markNotificationRead(id);
-    if (res.success) {
-      setNotifications((n) => n.map((notif) => notif._id === id ? { ...notif, read: true } : notif));
-    } else {
-      alert(res.error || 'Failed to mark as read');
-    }
-  }
+  /* -------------------------------------------------------
+     Subscribe to real-time notifications via socket
+  ------------------------------------------------------- */
+  useEffect(() => {
+    if (!user?._id) return;
 
+    console.log("[NotificationCenter] Listening for real-time notifications...");
+
+    socket.on("notification", (notif) => {
+      console.log("🔔 [Real-time] Notification received:", notif);
+
+      // Toast popup
+      toast.info(notif.message, { autoClose: 3000 });
+
+      // Add to Redux store (prevents duplicates)
+      dispatch(receiveNotification(notif));
+    });
+
+    return () => {
+      socket.off("notification");
+    };
+  }, [dispatch, user]);
+
+  /* -------------------------------------------------------
+     Mark a notification as read
+  ------------------------------------------------------- */
+  const handleMarkRead = async (id) => {
+    dispatch(markReadLocal(id));   // update instantly in UI
+    dispatch(markReadThunk(id));   // sync with backend
+  };
+
+  /* -------------------------------------------------------
+     UI
+  ------------------------------------------------------- */
   return (
     <div className="notification-center">
-      <h3>Notifications</h3>
+      <h2>Notifications</h2>
+
       {loading && <p>Loading…</p>}
-      {error && <p className="error">{error}</p>}
-      {!loading && notifications.length === 0 && <p>No notifications.</p>}
-      <ul>
+      {error && (
+        <div className="error">
+          <p>{error}</p>
+          <button onClick={() => dispatch(loadNotificationsThunk())}>
+            Retry
+          </button>
+        </div>
+      )}
+      {!loading && !error && notifications.length === 0 && (
+        <p>No notifications.</p>
+      )}
+
+      <ul className="notification-list">
         {notifications.map((notif) => (
-          <li key={notif._id} className={notif.read ? 'read' : 'unread'}>
-            <span>{notif.message}</span>
+          <li
+            key={notif._id}
+            className={`notification-item ${notif.read ? "read" : "unread"}`}
+          >
+            <span className="notif-message">{notif.message}</span>
+
             {!notif.read && (
-              <button onClick={() => handleMarkRead(notif._id)} className="mark-read-btn">Mark as read</button>
+              <button
+                className="mark-read-btn"
+                onClick={() => handleMarkRead(notif._id)}
+              >
+                Mark as read
+              </button>
             )}
           </li>
         ))}

@@ -1,4 +1,4 @@
-// src/features/tasks/api.js
+// src/features/tasks/pages/api.js
 // Correct Task API using httpClient (baseURL + auth token support)
 
 import http from "/src/services/httpClient";
@@ -40,13 +40,61 @@ export const assignTask = (id, assigneeId) =>
   http.put(`/tasks/${id}/assign`, { assigneeId }).then((res) => res.data);
 
 // ===========================
-// REQUEST REVISION
+// TASK REVIEW WORKFLOW API
 // ===========================
-export const reviseTask = (id, notes) =>
-  http.put(`/tasks/${id}/revise`, { revisionNotes: notes }).then((res) => res.data);
 
-// ===========================
-// APPROVE TASK
-// ===========================
-export const approveTask = (id) =>
-  http.put(`/tasks/${id}/approve`).then((res) => res.data);
+/**
+ * Submit work (Employee)
+ * @param {string} id - Task ID
+ * @param {string} notes - Submission notes
+ * @returns {Promise<{success: boolean, task?: object, message?: string, error?: string}>}
+ */
+export const submitWork = async (id, notes = "") => {
+  try {
+    const res = await http.put(`/tasks/${id}/submit`, { notes });
+    return res.data;
+  } catch (err) {
+    console.error("[submitWork] Error:", err.response?.data || err.message);
+    return {
+      success: false,
+      error: err.response?.data?.error || err.message || "Failed to submit work",
+    };
+  }
+};
+
+/**
+ * Request revision (Manager/Admin)
+ * @param {string} id - Task ID
+ * @param {string} notes - Revision notes
+ * @returns {Promise<{success: boolean, task?: object, message?: string, error?: string}>}
+ */
+export const reviseTask = async (id, notes = "") => {
+  try {
+    const res = await http.put(`/tasks/${id}/revise`, { notes });
+    return res.data;
+  } catch (err) {
+    console.error("[reviseTask] Error:", err.response?.data || err.message);
+    return {
+      success: false,
+      error: err.response?.data?.error || err.message || "Failed to request revision",
+    };
+  }
+};
+
+/**
+ * Approve task (Manager/Admin)
+ * @param {string} id - Task ID
+ * @returns {Promise<{success: boolean, task?: object, message?: string, error?: string}>}
+ */
+export const approveTask = async (id) => {
+  try {
+    const res = await http.put(`/tasks/${id}/approve`);
+    return res.data;
+  } catch (err) {
+    console.error("[approveTask] Error:", err.response?.data || err.message);
+    return {
+      success: false,
+      error: err.response?.data?.error || err.message || "Failed to approve task",
+    };
+  }
+}; 
