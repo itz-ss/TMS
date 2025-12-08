@@ -8,32 +8,32 @@ import axios from "axios";
 // Your deployed backend base:
 const PROD_BACKEND = "https://tmsbackend-production.up.railway.app/api";
 
-// 1) If running on Vercel frontend → ALWAYS use Railway backend
-const isDeployed =
+// Detect production (ANY domain except localhost)
+const isProduction =
   typeof window !== "undefined" &&
-  window.location.hostname.includes("vercel.app");
+  window.location.hostname !== "localhost" &&
+  window.location.hostname !== "127.0.0.1";
 
-// 2) If running locally → use localhost backend
+// Detect local dev
 const isLocalhost =
   typeof window !== "undefined" &&
   (window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1");
 
-// 3) If .env is provided manually → override
+// .env override
 const envApi = import.meta.env.VITE_API_URL;
 
-// 🎯 FINAL BASE URL DECISION
+// 🎯 FINAL BASE URL
 let BASE_URL;
 
 if (envApi) {
-  BASE_URL = envApi; // If user forces URL via .env
-} else if (isDeployed) {
-  BASE_URL = PROD_BACKEND; // Vercel → Railway backend
+  BASE_URL = envApi; // explicit override
 } else if (isLocalhost) {
-  BASE_URL = "http://localhost:5000/api"; // Local dev
+  BASE_URL = "http://localhost:5000/api";
+} else if (isProduction) {
+  BASE_URL = PROD_BACKEND; // ANY hosted frontend → Railway backend
 } else {
-  // fallback for unexpected environments
-  BASE_URL = PROD_BACKEND;
+  BASE_URL = PROD_BACKEND; // safety fallback
 }
 
 console.log("[httpClient] Using API:", BASE_URL);
@@ -43,9 +43,7 @@ console.log("[httpClient] Using API:", BASE_URL);
 ---------------------------------------------------------- */
 const http = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
 /* ---------------------------------------------------------
@@ -64,23 +62,15 @@ http.interceptors.request.use(
    RESPONSE INTERCEPTOR – Handle expired tokens
 ---------------------------------------------------------- */
 http.interceptors.response.use(
-  (response) => response,
-
-  (error) => {
-    const status = error?.response?.status;
-
-    if (status === 401) {
-      console.warn("Unauthorized — clearing token");
-
+  (res) => res,
+  (err) => {
+    if (err?.response?.status === 401) {
       localStorage.removeItem("token");
-
-      // Prevent infinite redirect loops
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
     }
-
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
 
