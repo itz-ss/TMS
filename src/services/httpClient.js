@@ -8,32 +8,31 @@ import axios from "axios";
 // Your deployed backend base:
 const PROD_BACKEND = "https://tmsbackend-production.up.railway.app/api";
 
-// Detect production (ANY domain except localhost)
-const isProduction =
-  typeof window !== "undefined" &&
-  window.location.hostname !== "localhost" &&
-  window.location.hostname !== "127.0.0.1";
-
-// Detect local dev
+// Detect local development
 const isLocalhost =
   typeof window !== "undefined" &&
   (window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1");
 
-// .env override
+// Detect production (any hosted domain)
+const isProduction =
+  typeof window !== "undefined" &&
+  !isLocalhost;
+
+// Optional .env override
 const envApi = import.meta.env.VITE_API_URL;
 
-// 🎯 FINAL BASE URL
+// 🎯 FINAL BASE URL resolution
 let BASE_URL;
 
 if (envApi) {
-  BASE_URL = envApi; // explicit override
+  BASE_URL = envApi;
 } else if (isLocalhost) {
   BASE_URL = "http://localhost:5000/api";
 } else if (isProduction) {
-  BASE_URL = PROD_BACKEND; // ANY hosted frontend → Railway backend
+  BASE_URL = PROD_BACKEND;
 } else {
-  BASE_URL = PROD_BACKEND; // safety fallback
+  BASE_URL = PROD_BACKEND; // fallback
 }
 
 console.log("[httpClient] Using API:", BASE_URL);
@@ -47,30 +46,58 @@ const http = axios.create({
 });
 
 /* ---------------------------------------------------------
-   REQUEST INTERCEPTOR – Add token
+   REQUEST INTERCEPTOR — Add token
+   BUT SKIP for /auth/login and /auth/register
 ---------------------------------------------------------- */
 http.interceptors.request.use(
   (config) => {
+    // Skip token ONLY for login
+    if (config.url.includes("/auth/login")) {
+      return config;
+    }
+
+    // Register MUST send token so admin can register users
     const token = localStorage.getItem("token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
+
 /* ---------------------------------------------------------
-   RESPONSE INTERCEPTOR – Handle expired tokens
+   RESPONSE INTERCEPTOR — Handle expired tokens
+   BUT DO NOT FORCE LOGOUT for:
+   - /auth/register  (admin adding user)
+   - /auth/profile   (admin dashboard auto-load)
 ---------------------------------------------------------- */
 http.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err?.response?.status === 401) {
+  (response) => response,
+
+  (error) => {
+    const url = error?.config?.url || "";
+
+    // ❌ Do NOT log out user during register or profile checks
+    if (
+      url.includes("/auth/register") ||
+      url.includes("/auth/profile")
+    ) {
+      return Promise.reject(error);
+    }
+
+    // Normal unauthorized logic
+    if (error?.response?.status === 401) {
       localStorage.removeItem("token");
+
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
     }
-    return Promise.reject(err);
+
+    return Promise.reject(error);
   }
 );
 

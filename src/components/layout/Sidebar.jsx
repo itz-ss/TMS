@@ -25,6 +25,10 @@ function Sidebar() {
           )}
         </a>
         <a href="/dashboard/notifications" data-short="🔔">Notifications</a>
+        {/* ✅ Register User — Visible ONLY for Admin */}
+        {user?.role === "admin" && (
+          <a href="/register" data-short="➕">Register User</a>
+        )}
       </nav>
     </aside>
   );

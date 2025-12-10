@@ -1,12 +1,14 @@
+// src/features/auth/pages/RegisterPage.jsx
 import React, { useState } from "react";
 import AuthLayout from "../components/AuthLayout";
-import axios from "axios";
+import http from "../../../services/httpClient";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [role, setRole] = useState("intern");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
 
@@ -16,18 +18,22 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL || "https://tmsbackend-psi.vercel.app"}/auth/register`,
-        { name, email, password, role }
-      );
-      setMsg("Registration successful — you can now log in.");
+      // httpClient automatically sends token for admin
+      const res = await http.post("/auth/register", {
+        name,
+        email,
+        password,
+        role,
+      });
+
+      setMsg(res.data.notice || res.data.message || "User registered.");
     } catch (err) {
       setError(err.response?.data?.error || "Registration failed");
     }
   };
 
   return (
-    <AuthLayout title="Create Account" subtitle="Set up your team space">
+    <AuthLayout title="Create Account" subtitle="Admin — add new users">
       <form onSubmit={handleRegister}>
         {msg && <p className="auth-success">{msg}</p>}
         {error && <p className="auth-error">{error}</p>}
@@ -53,11 +59,7 @@ export default function RegisterPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button type="submit">Register</button>
-
-        <p className="auth-footer">
-          Already have an account? <a href="/login">Login</a>
-        </p>
+        <button type="submit">Register User</button>
       </form>
     </AuthLayout>
   );
