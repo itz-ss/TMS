@@ -19,3 +19,15 @@ export default function RoleSelect({ value, onChange }) {
     </select>
   );
 }
+
+
+
+  // ⬅️ GET USER ROLE
+  // const user = useAppSelector((s) => s.auth.user);
+  // const role = user?.role;
+
+  // // ⬅️ FILTER CLIENTS: admins & managers see all
+  // const filteredClients =
+  //   role === "admin" || role === "manager"
+  //     ? clients
+  //     : clients.filter((c) => (taskCounts[c._id] || 0) > 0);
