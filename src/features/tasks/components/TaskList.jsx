@@ -1,13 +1,13 @@
 // src/features/tasks/TaskList.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import "../styles/tasks.css";
+// import "../styles/tasks.css";
 
 import {
   getTasks,
   createTask,
   deleteTask,
   assignTask,
-} from "/src/features/tasks/api";
+} from "../api";
 
 import TaskChatModal from "./TaskChatModal";
 import { useAppDispatch, useAppSelector } from "/src/store/hooks";

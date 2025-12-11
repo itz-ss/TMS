@@ -9,6 +9,7 @@ import {
   markReadThunk,
   markReadLocal,
   receiveNotification,
+  markAllReadThunk,
 } from "../../../store/notificationSlice";
 
 import { socket } from "../../../services/socket";
@@ -41,6 +42,10 @@ export default function NotificationCenter() {
     socket.on("notification", (notif) => {
       console.log("🔔 [Real-time] Notification received:", notif);
 
+      socket.on("notification:allRead", () => {
+        console.log("📢 [Real-time] All notifications marked as read");
+        dispatch(clearAllUnread());
+      });
       // Toast popup
       toast.info(notif.message, { autoClose: 3000 });
 
@@ -50,6 +55,7 @@ export default function NotificationCenter() {
 
     return () => {
       socket.off("notification");
+      socket.off("notification:allRead");
     };
   }, [dispatch, user]);
 
@@ -67,6 +73,14 @@ export default function NotificationCenter() {
   return (
     <div className="notification-center">
       <h2>Notifications</h2>
+      <button
+        className="mark-all-btn"
+        
+        onClick={() => dispatch(markAllReadThunk())}
+      >
+        Mark All as Read
+      </button>
+
 
       {loading && <p>Loading…</p>}
       {error && (

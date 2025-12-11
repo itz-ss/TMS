@@ -1,7 +1,8 @@
 // TaskChatModal.jsx - Unified chat modal for submissions and revisions
 import React, { useState, useEffect, useRef } from "react";
-import { submitWork, reviseTask, approveTask } from "../pages/api";
-import "../styles/tasks.css";
+import { submitWork, reviseTask, approveTask } from "/src/features/tasks/pages/api";
+
+import "../styles/TaskChatModal.css";
 
 export default function TaskChatModal({
   task,
@@ -226,6 +227,7 @@ export default function TaskChatModal({
                 gap: "8px",
               }}
             >
+
               {canRevise && (
                 <button
                   onClick={handleRequestRevision}
@@ -235,8 +237,9 @@ export default function TaskChatModal({
                 >
                   Request Revision
                 </button>
+                
               )}
-
+              
               {canApprove && (
                 <button
                   onClick={handleApprove}
@@ -247,6 +250,19 @@ export default function TaskChatModal({
                   Approve Task
                 </button>
               )}
+
+                <textarea
+                value={inputNotes}
+                onChange={(e) => setInputNotes(e.target.value)}
+                placeholder="Enter revision notes..."
+                rows={3}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #ddd",
+                }}
+              />
             </div>
           )}
 

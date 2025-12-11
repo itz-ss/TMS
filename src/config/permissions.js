@@ -1,8 +1,8 @@
-// src/permissions/permissions.js
+// src/config/permissions.js
 
 export const permissionsMatrix = {
   admin: {
-    canCreateTask: true,
+     canCreateTask: true,
     canAssignTask: true,
     canApproveTask: true,
     canReviseTask: true,

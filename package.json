@@ -12,6 +12,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.0",
     "axios": "^1.13.2",
+    "firebase": "^12.6.0",
     "msg91": "^2.2.8",
     "nodemailer": "^7.0.11",
     "react": "^19.2.0",

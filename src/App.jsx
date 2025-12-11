@@ -6,6 +6,8 @@ import { autoLoginThunk } from "./store/authSlice";
 import { socket, registerUserSocket, onNotification } from "./services/socket";
 import { receiveNotification } from "./store/notificationSlice";
 import { ToastContainer } from "react-toastify";
+import { onForegroundFcmMessage } from "./firebase/fcm";
+
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -61,6 +63,36 @@ export default function App() {
       unsubscribe();
     };
   }, [user, dispatch]);
+
+  /* -----------------------------------------
+ * 4) FIREBASE FCM: Foreground push notifications
+ ----------------------------------------- */
+useEffect(() => {
+  if (!user?._id) return;
+
+  console.log("📡 [App] Initializing Firebase foreground listener...");
+
+  const unsubscribeFcm = onForegroundFcmMessage((payload) => {
+    console.log("🔔 [FCM Foreground] Notification received:", payload);
+
+    // Create a unified notification object
+    const notif = {
+      _id: payload.messageId || Date.now(), // fallback ID
+      message: payload.notification?.body,
+      type: payload.data?.type || "general",
+      read: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    dispatch(receiveNotification(notif));
+  });
+
+  return () => {
+    console.log("🗑️ Cleaning up Firebase FCM listener");
+    if (unsubscribeFcm) unsubscribeFcm();
+  };
+}, [user, dispatch]);
+
 
   return (
     <>

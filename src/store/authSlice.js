@@ -1,6 +1,8 @@
 // src/store/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getPermissions } from "/src/config/permissions.js"; // FIXED PATH
+import { requestFcmToken, onForegroundFcmMessage } from "../firebase/fcm";
+import http from "../services/httpClient";
 
 // AUTH APIs
 import { login, getAuthProfile } from "../features/auth/api";
@@ -52,6 +54,19 @@ export const loginThunk = createAsyncThunk(
       }
 
       localStorage.setItem("token", res.data.token);
+      /* fire base token */
+    const token = await requestFcmToken();
+
+    try {
+      if (token) {
+        // console.log("FCM Token obtained:", token);
+        await http.post("/users/register-fcm-token", { token });
+      }
+    } catch (fcErr) {
+      console.warn("FCM registration failed, but login continues:", fcErr);
+    }
+
+
       return res.data.user;
     } catch (err) {
       return rejectWithValue(err.response?.data?.error || "Login failed");

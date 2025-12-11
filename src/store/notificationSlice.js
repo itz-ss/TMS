@@ -4,6 +4,7 @@ import {
   fetchNotifications,
   markNotificationRead,
   deleteNotification,
+  markAllNotificationsRead,
 } from "../features/notifications/api";
 
 const initialState = {
@@ -48,6 +49,18 @@ export const deleteNotificationThunk = createAsyncThunk(
     return notificationId;
   }
 );
+
+export const markAllReadThunk = createAsyncThunk(
+  "notifications/markAllRead",
+  async () => {
+    // console.log("THUNK: markAllReadThunk CALLED");
+    const res = await markAllNotificationsRead();
+    // console.log("THUNK: Response from API:", res);
+    return true;
+  }
+);
+
+
 
 const notificationSlice = createSlice({
   name: "notifications",
@@ -121,6 +134,13 @@ const notificationSlice = createSlice({
       }
     });
 
+        // ⭐ MARK ALL READ (local state update)
+    builder.addCase(markAllReadThunk.fulfilled, (state) => {
+      state.items.forEach((n) => (n.read = true));
+      state.unreadCount = 0;
+    });
+
+
     /* --------------------------------------------------------
      * DELETE NOTIFICATION
      -------------------------------------------------------- */
@@ -136,6 +156,8 @@ const notificationSlice = createSlice({
     });
   },
 });
+
+
 
 export const {
   receiveNotification,

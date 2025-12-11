@@ -1,4 +1,4 @@
-// Notifications API
+// Notifications/ API
 import http from "../../services/httpClient";
 
 // Fetch all notifications
@@ -41,10 +41,11 @@ export async function deleteNotification(id) {
   }
 }
 
-// ⭐ OPTIONAL — mark all notifications as read
+// ⭐ Mark ALL notifications as read
 export async function markAllNotificationsRead() {
   try {
-    const res = await http.put("/users/notifications/read-all");
+    // console.log("API: calling /notifications/read-all");
+   const res = await http.put("/notifications/read-all");
     return res.data;
   } catch (err) {
     return { success: false, error: err.response?.data?.error };
