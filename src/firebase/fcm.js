@@ -41,3 +41,11 @@ export function onForegroundFcmMessage(callback) {
     if (callback) callback(payload);
   });
 }
+
+// Expose debug helper for browser console testing
+if (typeof window !== "undefined") {
+  window._listenForegroundFcm = function (callback) {
+    onMessage(messaging, callback);
+    console.log("✓ Foreground FCM listener attached");
+  };
+}
