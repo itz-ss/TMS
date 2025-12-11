@@ -42,6 +42,13 @@ export function onForegroundFcmMessage(callback) {
   });
 }
 
+// Expose debug helpers for browser console testing
+if (typeof window !== "undefined") {
+  window.requestFcmToken = requestFcmToken;
+  window.listenForegroundFcm = onForegroundFcmMessage;
+}
+
+
 // Expose debug helper for browser console testing
 if (typeof window !== "undefined") {
   window._listenForegroundFcm = function (callback) {
