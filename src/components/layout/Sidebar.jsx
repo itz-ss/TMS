@@ -2,9 +2,9 @@ import React, { memo } from "react";
 import "./styles/sidebar.css";
 import { useAppSelector } from "../../store/hooks";
 import { selectPendingTaskCount } from "../../store/taskSlice";
+import { NavLink } from "react-router-dom";
 
 function Sidebar() {
-  // Only read user once per auth update
   const user = useAppSelector((s) => s.auth.user);
   const pendingCount = useAppSelector(selectPendingTaskCount);
 
@@ -12,25 +12,41 @@ function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <h2 className="logo">TMS</h2>
-      <nav>
-        <a href="/dashboard" data-short="🏠">Dashboard</a>
-        <a href="/dashboard/profile" data-short={initial}>{user?.name}</a>
-        <a href="/dashboard/settings" data-short="⚙️">Settings</a>
-        {/* Tasks and Notification links: routes registered in AppRoutes.jsx */}
-        <a href="/dashboard/tasks" data-short="📋">
-          Tasks
-          {pendingCount > 0 && (
-            <span className="sidebar-badge">{pendingCount}</span>
-          )}
-        </a>
-        <a href="/dashboard/notifications" data-short="🔔">Notifications</a>
-        {/* ✅ Register User — Visible ONLY for Admin */}
-        {user?.role === "admin" && (
-          <a href="/register" data-short="➕">Register User</a>
-        )}
-      </nav>
-    </aside>
+  <h2 className="logo">TMS</h2>
+  <nav>
+    <NavLink to="/dashboard" data-short="🏠">Dashboard</NavLink>
+
+    <NavLink to="/dashboard/profile" data-short={initial}>
+      {user?.name}
+    </NavLink>
+
+    <NavLink to="/dashboard/settings" data-short="⚙️">
+      Settings
+    </NavLink>
+
+    <NavLink to="/dashboard/tasks" data-short="📋">
+      Tasks
+      {pendingCount > 0 && (
+        <span className="sidebar-badge">{pendingCount}</span>
+      )}
+    </NavLink>
+
+    <NavLink to="/dashboard/calendar" data-short="📅">
+      Calendar
+    </NavLink>
+
+    <NavLink to="/dashboard/notifications" data-short="🔔">
+      Notifications
+    </NavLink>
+
+    {user?.role === "admin" && (
+      <NavLink to="/register" data-short="➕">
+        Register User
+      </NavLink>
+    )}
+  </nav>
+</aside>
+
   );
 }
 

@@ -7,6 +7,7 @@ import {
   createTask,
   deleteTask,
   assignTask,
+  getTasksByDate,
 } from "../api";
 
 import TaskChatModal from "./TaskChatModal";
@@ -17,6 +18,9 @@ import http from "/src/services/httpClient";
 import { useClients } from "/src/features/clients/hooks";
 import { createClient } from "/src/features/clients/api";
 import ClientTabs from "/src/features/clients/components/ClientTabs";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 
 import {
   selectCanCreateTask,
@@ -44,6 +48,10 @@ export default function TaskList() {
     client: "",
   });
 
+  // ✅ ADD THIS
+  const { date } = useParams(); // YYYY-MM-DD or undefined
+
+
   // create-client modal
   const [showClientModal, setShowClientModal] = useState(false);
   const [newClient, setNewClient] = useState({ name: "", description: "", contact: "" });
@@ -70,6 +78,9 @@ export default function TaskList() {
   const canRevise = useAppSelector(selectCanReviseTask);
   const canViewAll = useAppSelector(selectCanViewAllTasks);
 
+  const navigate = useNavigate();
+
+
   // fetch tasks whenever selectedClient changes
   useEffect(() => {
     loadTasks();
@@ -82,11 +93,26 @@ export default function TaskList() {
     setLoading(true);
     setError(null);
     try {
-      const params = {};
-      if (selectedClient) params.clientId = selectedClient;
+     const params = {};
+
+    if (selectedClient) {
+      params.clientId = selectedClient;
+    }
+
+    // ✅ ADD THIS
+    if (date) {
+      params.date = date;
+    }
 
       // load page tasks (filtered if selectedClient)
-      const res = await getTasks(params);
+     let res;
+
+    if (date) {
+      res = await getTasksByDate(date);
+    } else {
+      res = await getTasks(params);
+    }
+
       const data = res?.data ?? res;
       const tasksArr = Array.isArray(data?.tasks) ? data.tasks : Array.isArray(data) ? data : [];
 
@@ -259,6 +285,13 @@ async function handleAssign(taskId, userId) {
     [tasks, currentUser, canApprove]
   );
 
+
+  function formatDate(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleDateString();
+}
+
+
   // ---------- HELPER: client name ----------
   function getClientName(t) {
     if (!t) return "-";
@@ -291,17 +324,42 @@ async function handleAssign(taskId, userId) {
 
   // ---------- RENDER ----------
   return (
+
     <div className="tasks-page" style={{ padding: 12 }}>
-      <h2 style={{ marginBottom: 12 }}>Tasks</h2>
+      {date && (
+      <button
+        onClick={() => navigate("/dashboard/calendar")}
+        style={{
+          marginBottom: 8,
+          background: "transparent",
+          border: "none",
+          color: "#007bff",
+          cursor: "pointer",
+          padding: 0,
+          fontSize: 14,
+        }}
+      >
+        ← Back to Calendar
+      </button>
+    )}
+
+     <h2 style={{ marginBottom: 12 }}>
+      {date
+        ? `Tasks for ${new Date(date).toLocaleDateString()}`
+        : "Tasks"}
+    </h2>
+
 
       {/* CLIENT TABS / DROPDOWN */}
       <div style={{ marginBottom: 12 }}>
+       {!date &&(
         <ClientTabs
           clients={clients || []}
           selectedClient={selectedClient}
           setSelectedClient={setSelectedClient}
           taskCounts={taskCounts}
         />
+       )} 
       </div>
 
       {/* CREATE BUTTON */}
@@ -393,7 +451,7 @@ async function handleAssign(taskId, userId) {
       {!loading && tasks.length > 0 && (
         <>
           {/* REVIEW REQUESTS (cards) */}
-          {awaitingReview.length > 0 && (
+          {!date && awaitingReview.length > 0 && (
             <div style={{ marginBottom: 16 }}>
               <h3 style={{ marginBottom: 8 }}>🔍 Review Requests ({awaitingReview.length})</h3>
               <div className="review-requests-grid" style={{ display: "grid", gap: 12 }}>
@@ -417,7 +475,7 @@ async function handleAssign(taskId, userId) {
           )}
 
           {/* REVISION REQUESTS */}
-          {revisionRequests.length > 0 && (
+          {!date && revisionRequests.length > 0 && (
             <div style={{ marginBottom: 16 }}>
               <h3 style={{ marginBottom: 8 }}>🟠 Revision Requests ({revisionRequests.length})</h3>
               <div className="revision-requests-grid" style={{ display: "grid", gap: 12 }}>
@@ -457,6 +515,9 @@ async function handleAssign(taskId, userId) {
                     <th style={{ textAlign: "left", padding: 8 }}>Title</th>
                     <th style={{ textAlign: "left", padding: 8 }}>Description</th>
                     <th style={{ textAlign: "left", padding: 8 }}>Status</th>
+                    {date && <th style={{ textAlign: "left", padding: 8 }}>Submitted</th>}
+                    {date && <th style={{ textAlign: "left", padding: 8 }}>Revision</th>}
+                    {date && <th style={{ textAlign: "left", padding: 8 }}>Approved</th>}
                     <th style={{ textAlign: "left", padding: 8 }}>Due Date</th>
                     <th style={{ textAlign: "left", padding: 8 }}>Actions</th>
                   </tr>
@@ -491,9 +552,20 @@ async function handleAssign(taskId, userId) {
                           </div>
                         </td>
 
-                        <td style={{ padding: 8 }}>
-                          <span className={badge.class} style={{ padding: "4px 8px", borderRadius: 4 }}>{badge.text}</span>
+                       <td style={{ padding: 8 }}>
+                          <span className={badge.class} style={{ padding: "4px 8px", borderRadius: 4 }}>
+                            {badge.text}
+                          </span>
                         </td>
+
+                        {date && <td style={{ padding: 8 }}>{formatDate(t.submittedAt)}</td>}
+                        {date && <td style={{ padding: 8 }}>{formatDate(t.revisionRequestedAt)}</td>}
+                        {date && <td style={{ padding: 8 }}>{formatDate(t.approvedAt)}</td>}
+
+                        <td style={{ padding: 8 }}>
+                          {t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "-"}
+                        </td>
+
 
                         <td style={{ padding: 8 }}>{t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "-"}</td>
 

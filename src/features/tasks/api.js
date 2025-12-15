@@ -91,5 +91,13 @@ export const approveTask = async (id) => {
       error: err.response?.data?.error || err.message || "Failed to approve task",
     };
   }
+  
 };
+export const getTasksByDate = (date, employeeId) => {
+  return http.get(`/calendar/date/${date}`, {
+    params: employeeId ? { employeeId } : {}
+  });
+};
+
+
 

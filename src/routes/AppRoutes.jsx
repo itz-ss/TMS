@@ -9,6 +9,7 @@ import ProfilePage from "../features/users/pages/ProfilePage";
 import SettingsPage from "../features/settings/SettingsPage";
 import NotificationCenter from "../features/notifications/components/NotificationCenter";
 import TaskList from "../features/tasks/components/TaskList";
+import CalendarPage from "../features/calendar/pages/CalendarPage";
 
 export default function AppRoutes() {
   return (
@@ -26,13 +27,16 @@ export default function AppRoutes() {
         }
       >
         <Route path="/dashboard" element={<DashboardPage />} />
-        {/* Later: /users, /tasks, etc. */}
         <Route path="/dashboard/profile" element={<ProfilePage />} />
         <Route path="/dashboard/settings" element={<SettingsPage />} />
-        {/* Notification center route */}
         <Route path="/dashboard/notifications" element={<NotificationCenter />} />
-        {/* Tasks management route */}
         <Route path="/dashboard/tasks" element={<TaskList />} />
+
+        {/* ✅ CALENDAR ROUTE */}
+        <Route path="/dashboard/calendar" element={<CalendarPage />} />
+        <Route path="/dashboard/calendar/:date" element={<TaskList />} />
+
+
       </Route>
 
       {/* Default redirect */}

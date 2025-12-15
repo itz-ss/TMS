@@ -1,5 +1,3 @@
-// User service
-
 import axios from "axios";
 
 const api = axios.create({
