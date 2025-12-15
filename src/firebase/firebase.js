@@ -10,7 +10,8 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-console.log("🔥 Firebase Config:", firebaseConfig); // TEMPORARY DEBUG
+// console.log("🔥 Firebase Config:", firebaseConfig); 
+// TEMPORARY DEBUG
 
 export const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);

@@ -29,7 +29,7 @@ const CalendarHeader = ({
       <button onClick={nextMonth}>→</button>
 
       {/* ✅ Admin / Manager only */}
-      {user?.role !== "employeeId" && (
+      {user?.role !== "employee" && (
         <select
           value={employeeId}
           onChange={(e) => onEmployeeChange(e.target.value)}

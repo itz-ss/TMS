@@ -7,7 +7,6 @@ import {
   createTask,
   deleteTask,
   assignTask,
-  getTasksByDate,
 } from "../api";
 
 import TaskChatModal from "./TaskChatModal";
@@ -105,14 +104,7 @@ export default function TaskList() {
     }
 
       // load page tasks (filtered if selectedClient)
-     let res;
-
-    if (date) {
-      res = await getTasksByDate(date);
-    } else {
-      res = await getTasks(params);
-    }
-
+      const res = await getTasks(params);
       const data = res?.data ?? res;
       const tasksArr = Array.isArray(data?.tasks) ? data.tasks : Array.isArray(data) ? data : [];
 
@@ -352,14 +344,12 @@ async function handleAssign(taskId, userId) {
 
       {/* CLIENT TABS / DROPDOWN */}
       <div style={{ marginBottom: 12 }}>
-       {!date &&(
         <ClientTabs
           clients={clients || []}
           selectedClient={selectedClient}
           setSelectedClient={setSelectedClient}
           taskCounts={taskCounts}
         />
-       )} 
       </div>
 
       {/* CREATE BUTTON */}
