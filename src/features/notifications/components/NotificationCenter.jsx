@@ -1,30 +1,30 @@
 // src/features/notifications/components/NotificationCenter.jsx
-// Full real-time + Redux-synced notification center
+// Redux-driven Notification Center (no socket logic here)
 
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 
 import {
   loadNotificationsThunk,
   markReadThunk,
   markReadLocal,
-  receiveNotification,
   markAllReadThunk,
 } from "../../../store/notificationSlice";
 
-import { socket } from "../../../services/socket";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function NotificationCenter() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const { items: notifications, loading, error } = useAppSelector(
     (s) => s.notifications
   );
   const user = useAppSelector((s) => s.auth.user);
 
   /* -------------------------------------------------------
-     Load notifications when user is ready
+     Load notifications once user is available
   ------------------------------------------------------- */
   useEffect(() => {
     if (!user?._id) return;
@@ -32,39 +32,24 @@ export default function NotificationCenter() {
   }, [dispatch, user]);
 
   /* -------------------------------------------------------
-     Subscribe to real-time notifications via socket
+     Mark single notification as read
   ------------------------------------------------------- */
-  useEffect(() => {
-    if (!user?._id) return;
-
-    console.log("[NotificationCenter] Listening for real-time notifications...");
-
-    socket.on("notification", (notif) => {
-      console.log("🔔 [Real-time] Notification received:", notif);
-
-      socket.on("notification:allRead", () => {
-        console.log("📢 [Real-time] All notifications marked as read");
-        dispatch(clearAllUnread());
-      });
-      // Toast popup
-      toast.info(notif.message, { autoClose: 3000 });
-
-      // Add to Redux store (prevents duplicates)
-      dispatch(receiveNotification(notif));
-    });
-
-    return () => {
-      socket.off("notification");
-      socket.off("notification:allRead");
-    };
-  }, [dispatch, user]);
+  const handleMarkRead = (id) => {
+    dispatch(markReadLocal(id));   // instant UI update
+    dispatch(markReadThunk(id));   // backend sync
+  };
 
   /* -------------------------------------------------------
-     Mark a notification as read
+     Click notification → mark read → open task
   ------------------------------------------------------- */
-  const handleMarkRead = async (id) => {
-    dispatch(markReadLocal(id));   // update instantly in UI
-    dispatch(markReadThunk(id));   // sync with backend
+  const handleNotificationClick = (notif) => {
+    if (!notif.read) {
+      handleMarkRead(notif._id);
+    }
+
+    if (notif.metadata?.taskId) {
+      navigate(`/tasks/${notif.metadata.taskId}`);
+    }
   };
 
   /* -------------------------------------------------------
@@ -73,16 +58,16 @@ export default function NotificationCenter() {
   return (
     <div className="notification-center">
       <h2>Notifications</h2>
+
       <button
         className="mark-all-btn"
-        
         onClick={() => dispatch(markAllReadThunk())}
       >
         Mark All as Read
       </button>
 
-
       {loading && <p>Loading…</p>}
+
       {error && (
         <div className="error">
           <p>{error}</p>
@@ -91,6 +76,7 @@ export default function NotificationCenter() {
           </button>
         </div>
       )}
+
       {!loading && !error && notifications.length === 0 && (
         <p>No notifications.</p>
       )}
@@ -99,14 +85,23 @@ export default function NotificationCenter() {
         {notifications.map((notif) => (
           <li
             key={notif._id}
-            className={`notification-item ${notif.read ? "read" : "unread"}`}
+            className={`notification-item ${
+              notif.read ? "read" : "unread"
+            }`}
+            onClick={() => handleNotificationClick(notif)}
+            style={{
+              cursor: notif.metadata?.taskId ? "pointer" : "default",
+            }}
           >
             <span className="notif-message">{notif.message}</span>
 
             {!notif.read && (
               <button
                 className="mark-read-btn"
-                onClick={() => handleMarkRead(notif._id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // prevent navigation
+                  handleMarkRead(notif._id);
+                }}
               >
                 Mark as read
               </button>

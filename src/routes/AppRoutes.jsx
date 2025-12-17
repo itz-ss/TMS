@@ -11,6 +11,8 @@ import NotificationCenter from "../features/notifications/components/Notificatio
 import TaskList from "../features/tasks/components/TaskList";
 import CalendarPage from "../features/calendar/pages/CalendarPage";
 
+
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -31,11 +33,7 @@ export default function AppRoutes() {
         <Route path="/dashboard/settings" element={<SettingsPage />} />
         <Route path="/dashboard/notifications" element={<NotificationCenter />} />
         <Route path="/dashboard/tasks" element={<TaskList />} />
-
-        {/* ✅ CALENDAR ROUTE */}
         <Route path="/dashboard/calendar" element={<CalendarPage />} />
-        <Route path="/dashboard/calendar/:date" element={<TaskList />} />
-
 
       </Route>
 

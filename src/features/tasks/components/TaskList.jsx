@@ -17,8 +17,9 @@ import http from "/src/services/httpClient";
 import { useClients } from "/src/features/clients/hooks";
 import { createClient } from "/src/features/clients/api";
 import ClientTabs from "/src/features/clients/components/ClientTabs";
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+
+import { useNavigate, useLocation } from "react-router-dom";
+import CalendarLegend from "/src/features/calendar/components/CalendarLegend";
 
 
 import {
@@ -30,14 +31,14 @@ import {
   selectCanViewAllTasks,
 } from "/src/store/authSlice";
 
-export default function TaskList() {
+export default function TaskList({ date, employeeId,  onEmployeeChange,}) {
   const dispatch = useAppDispatch();
-
+  
   const [tasks, setTasksLocal] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [selectedEmployee, setSelectedEmployee] = useState(false);
   // create-task form
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -46,9 +47,6 @@ export default function TaskList() {
     dueDate: "",
     client: "",
   });
-
-  // ✅ ADD THIS
-  const { date } = useParams(); // YYYY-MM-DD or undefined
 
 
   // create-client modal
@@ -77,15 +75,28 @@ export default function TaskList() {
   const canRevise = useAppSelector(selectCanReviseTask);
   const canViewAll = useAppSelector(selectCanViewAllTasks);
 
+
+  const activeEmployeeId = selectedEmployee || (currentUser?.role === "employee" ? currentUser._id : null);
+
+
   const navigate = useNavigate();
+
+  const location = useLocation();
+  // calendar view = coming from calendar page
+  const isCalendarView = location.pathname.includes("/calendar");
+
+
 
 
   // fetch tasks whenever selectedClient changes
-  useEffect(() => {
-    loadTasks();
-    loadUsers();
-    // ensure clients hook loads separately (hook usually does)
-  }, [selectedClient]);
+ useEffect(() => {
+  loadTasks();
+}, [selectedClient, date, selectedEmployee]);
+
+useEffect(() =>{
+  loadUsers();
+},[]);
+
 
   // ---------- LOAD TASKS ----------
   async function loadTasks() {
@@ -103,6 +114,10 @@ export default function TaskList() {
       params.date = date;
     }
 
+    if (activeEmployeeId) {
+      params.employeeId = activeEmployeeId;
+    }
+
       // load page tasks (filtered if selectedClient)
       const res = await getTasks(params);
       const data = res?.data ?? res;
@@ -112,18 +127,23 @@ export default function TaskList() {
       dispatch(setTasks(tasksArr));
 
       // load all tasks (no filter) to compute accurate assigned counts per client
-      const allRes = await getTasks();
+      const allRes = await getTasks({ status: "assigned" });
       const allData = allRes?.data ?? allRes;
-      const allTasks = Array.isArray(allData?.tasks) ? allData.tasks : Array.isArray(allData) ? allData : [];
+      const assignedTasks = Array.isArray(allData?.tasks)
+        ? allData.tasks
+        : Array.isArray(allData)
+        ? allData
+        : [];
 
-      // compute counts for tasks with status === 'assigned'
       const counts = {};
-      allTasks.forEach((t) => {
-        const id = t.client?._id || t.client;
-        if (!id) return;
-        if (t.status === "assigned") counts[id] = (counts[id] || 0) + 1;
+      assignedTasks.forEach((t) => {
+        const clientId = t.client?._id || t.client;
+        if (!clientId) return;
+        counts[clientId] = (counts[clientId] || 0) + 1;
       });
+
       setTaskCounts(counts);
+
     } catch (err) {
       console.error("loadTasks error:", err);
       setError(err?.response?.data?.error || err?.message || "Failed to load tasks");
@@ -258,8 +278,11 @@ async function handleAssign(taskId, userId) {
   // ---------- GROUPING ----------
   function groupTasks(tasksArr) {
     const myTasks = tasksArr.filter(
-      (t) => t.assignee?._id?.toString() === currentUser?._id?.toString()
+      (t) =>
+        t.assignee?._id?.toString() ===
+        (activeEmployeeId || currentUser?._id)?.toString()
     );
+
     const awaitingReview = tasksArr.filter((t) => t.status === "submitted" && canApprove);
     const revisionRequests = tasksArr.filter(
       (t) => t.status === "revisions" && t.assignee?._id?.toString() === currentUser?._id?.toString()
@@ -341,6 +364,32 @@ async function handleAssign(taskId, userId) {
         : "Tasks"}
     </h2>
 
+    
+
+      {canViewAll && users.length > 0 && (
+        <div style={{ maxWidth: 260, marginBottom: 12 }}>
+          <label style={{ fontSize: 13, color: "#555" }}>
+            Filter by employee
+          </label>
+          <select
+            value={selectedEmployee || ""}
+           onChange={(e) => {
+              const value = e.target.value || null;
+              setSelectedEmployee(value);      // local (optional)
+              onEmployeeChange(value);         // 🔑 updates calendar
+            }}
+
+            style={{ width: "100%", padding: 6, marginTop: 4 }}
+          >
+            <option value="">All employees</option>
+            {users.map((u) => (
+              <option key={u._id} value={u._id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* CLIENT TABS / DROPDOWN */}
       <div style={{ marginBottom: 12 }}>
@@ -353,7 +402,7 @@ async function handleAssign(taskId, userId) {
       </div>
 
       {/* CREATE BUTTON */}
-      {canCreate && (
+      {canCreate && !isCalendarView && (
         <div style={{ marginBottom: 12 }}>
           <button className="btn-primary" onClick={() => setShowForm((s) => !s)}>
             {showForm ? "Close" : "Create Task"}
@@ -362,7 +411,7 @@ async function handleAssign(taskId, userId) {
       )}
 
       {/* CREATE FORM */}
-      {showForm && canCreate && (
+      {showForm && canCreate && !isCalendarView && (
         <form onSubmit={handleCreate} className="task-form" style={{ marginBottom: 16 }}>
           <div>
             <label>Title</label>
@@ -403,7 +452,7 @@ async function handleAssign(taskId, userId) {
       )}
 
       {/* CLIENT CREATE MODAL */}
-      {showClientModal && (
+      {showClientModal && !isCalendarView && (
         <div className="modal-overlay" onClick={() => setShowClientModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
             <h3>Create Client</h3>
@@ -441,7 +490,7 @@ async function handleAssign(taskId, userId) {
       {!loading && tasks.length > 0 && (
         <>
           {/* REVIEW REQUESTS (cards) */}
-          {!date && awaitingReview.length > 0 && (
+          { !isCalendarView && !date && awaitingReview.length > 0 && (
             <div style={{ marginBottom: 16 }}>
               <h3 style={{ marginBottom: 8 }}>🔍 Review Requests ({awaitingReview.length})</h3>
               <div className="review-requests-grid" style={{ display: "grid", gap: 12 }}>
@@ -465,7 +514,7 @@ async function handleAssign(taskId, userId) {
           )}
 
           {/* REVISION REQUESTS */}
-          {!date && revisionRequests.length > 0 && (
+          {!isCalendarView && !date && revisionRequests.length > 0 && (
             <div style={{ marginBottom: 16 }}>
               <h3 style={{ marginBottom: 8 }}>🟠 Revision Requests ({revisionRequests.length})</h3>
               <div className="revision-requests-grid" style={{ display: "grid", gap: 12 }}>
@@ -489,7 +538,7 @@ async function handleAssign(taskId, userId) {
           )}
 
           {/* MY ASSIGNED TASKS table (unified columns) */}
-          <div style={{ marginBottom: 16 }}>
+        { currentUser && ( <div style={{ marginBottom: 16 }}>
             <h3 style={{ marginBottom: 8 }}>
               📋 My Assigned Tasks ({myTasks.length})
               {tasksToSubmit.length > 0 && <span style={{ fontSize: 14, color: "#007bff", marginLeft: 8 }}>- {tasksToSubmit.length} need submission</span>}
@@ -575,10 +624,10 @@ async function handleAssign(taskId, userId) {
                 </tbody>
               </table>
             )}
-          </div>
+          </div>)}
 
           {/* ALL TASKS (admin/manager) */}
-          {canViewAll && (
+          {!isCalendarView && canViewAll && (
             <div style={{ marginBottom: 16 }}>
               <h3 style={{ marginBottom: 8 }}>📊 All Tasks ({tasks.length})</h3>
 

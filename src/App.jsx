@@ -4,10 +4,9 @@ import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { autoLoginThunk } from "./store/authSlice";
 
 import { socket, registerUserSocket, onNotification } from "./services/socket";
-import { receiveNotification } from "./store/notificationSlice";
+import { receiveNotification, loadNotificationsThunk } from "./store/notificationSlice";
 import { ToastContainer } from "react-toastify";
 import { onForegroundFcmMessage } from "./firebase/fcm";
-
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -90,6 +89,37 @@ useEffect(() => {
   return () => {
     console.log("🗑️ Cleaning up Firebase FCM listener");
     if (unsubscribeFcm) unsubscribeFcm();
+  };
+}, [user, dispatch]);
+
+/* -----------------------------------------
+ * 5) APP VISIBILITY / FOCUS RESYNC (iOS SAFE)
+ ----------------------------------------- */
+useEffect(() => {
+  if (!user?._id) return;
+
+  const handleAppResume = () => {
+    console.log("🔄 [App] App resumed — resyncing notifications");
+
+    // Re-register socket room (safe to call multiple times)
+    registerUserSocket(user._id);
+
+    // Reload authoritative notifications from backend
+    dispatch(loadNotificationsThunk());
+  };
+
+  // iOS + browser tab resume
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      handleAppResume();
+    }
+  });
+
+  // Desktop + PWA focus
+  window.addEventListener("focus", handleAppResume);
+
+  return () => {
+    window.removeEventListener("focus", handleAppResume);
   };
 }, [user, dispatch]);
 

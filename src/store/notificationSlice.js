@@ -7,6 +7,7 @@ import {
   markAllNotificationsRead,
 } from "../features/notifications/api";
 
+
 const initialState = {
   items: [],
   unreadCount: 0,
