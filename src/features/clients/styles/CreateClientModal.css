@@ -1,0 +1,162 @@
+/* ======================================================
+   MODAL OVERLAY — BLUR BACKGROUND
+   ====================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  animation: overlayFadeIn 0.25s ease;
+}
+
+/* ======================================================
+   MODAL CONTAINER
+   ====================================================== */
+.modal-content {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px 30px;
+
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.35);
+
+  animation: modalEnter 0.25s ease;
+}
+
+/* Variant */
+.client-modal {
+  max-width: 520px;
+}
+
+/* ======================================================
+   MODAL HEADER
+   ====================================================== */
+.modal-content h3 {
+  margin: 0 0 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* ======================================================
+   FORM
+   ====================================================== */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ======================================================
+   LABELS
+   ====================================================== */
+.modal-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+
+/* ======================================================
+   INPUTS
+   ====================================================== */
+.modal-input,
+.modal-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  outline: none;
+
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.modal-input::placeholder,
+.modal-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.modal-input:focus,
+.modal-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ======================================================
+   PRIMARY BUTTON
+   ====================================================== */
+.btn-primary {
+  margin-top: 14px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+
+  background: #2563eb;
+  color: #ffffff;
+  cursor: pointer;
+
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ======================================================
+   ANIMATIONS
+   ====================================================== */
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ======================================================
+   MOBILE OPTIMIZATION
+   ====================================================== */
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 22px 20px;
+  }
+
+  .modal-content h3 {
+    font-size: 16px;
+  }
+}

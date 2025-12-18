@@ -1,0 +1,139 @@
+/* ======================================================
+   CALENDAR CONTAINER
+   ====================================================== */
+.calendar-container {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* ======================================================
+   HEADER (DATE ON TOP)
+   ====================================================== */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.calendar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.calendar-nav-btn {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #334155;
+  transition: background 0.2s ease;
+}
+
+.calendar-nav-btn:hover {
+  background: #e5e7eb;
+}
+
+/* ======================================================
+   GRID
+   ====================================================== */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.calendar-empty-cell {
+  height: 72px;
+}
+
+/* ======================================================
+   DAY CELL
+   ====================================================== */
+.calendar-day {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.calendar-day:hover {
+  background: #f8fafc;
+  border-color: #cbd5f5;
+}
+
+.calendar-day.selected {
+  border: 2px solid #2563eb;
+  background: #e8f0ff;
+}
+
+/* ======================================================
+   DAY NUMBER
+   ====================================================== */
+.calendar-day-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* ======================================================
+   DOTS
+   ====================================================== */
+.calendar-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+  max-height: 16px;
+  overflow: hidden;
+}
+
+.calendar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.calendar-dot-empty {
+  background: #000;
+  opacity: 0.6;
+  margin: 6px auto 0;
+}
+
+/* ======================================================
+   MOBILE
+   ====================================================== */
+@media (max-width: 480px) {
+  .calendar-container {
+    padding: 12px;
+  }
+
+   .calendar-grid {
+    overflow-x: auto;
+    grid-template-columns: repeat(6, minmax(44px, 1fr));
+  }
+
+ .calendar-day {
+    min-height: 54px;
+  }
+
+  .calendar-day-number {
+    font-size: 13px;
+  }
+   .calendar-nav-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+}

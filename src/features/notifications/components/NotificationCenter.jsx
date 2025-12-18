@@ -4,6 +4,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import "../styles/notificationCenter.css"
 
 import {
   loadNotificationsThunk,
@@ -55,21 +56,23 @@ export default function NotificationCenter() {
   /* -------------------------------------------------------
      UI
   ------------------------------------------------------- */
-  return (
+ return (
     <div className="notification-center">
-      <h2>Notifications</h2>
+      <div className="notification-header">
+        <h2>Notifications</h2>
 
-      <button
-        className="mark-all-btn"
-        onClick={() => dispatch(markAllReadThunk())}
-      >
-        Mark All as Read
-      </button>
+        <button
+          className="mark-all-btn"
+          onClick={() => dispatch(markAllReadThunk())}
+        >
+          Mark All as Read
+        </button>
+      </div>
 
-      {loading && <p>Loading…</p>}
+      {loading && <p className="notification-loading">Loading…</p>}
 
       {error && (
-        <div className="error">
+        <div className="notification-error">
           <p>{error}</p>
           <button onClick={() => dispatch(loadNotificationsThunk())}>
             Retry
@@ -78,7 +81,7 @@ export default function NotificationCenter() {
       )}
 
       {!loading && !error && notifications.length === 0 && (
-        <p>No notifications.</p>
+        <p className="notification-empty">No notifications.</p>
       )}
 
       <ul className="notification-list">
@@ -87,11 +90,8 @@ export default function NotificationCenter() {
             key={notif._id}
             className={`notification-item ${
               notif.read ? "read" : "unread"
-            }`}
+            } ${notif.metadata?.taskId ? "clickable" : ""}`}
             onClick={() => handleNotificationClick(notif)}
-            style={{
-              cursor: notif.metadata?.taskId ? "pointer" : "default",
-            }}
           >
             <span className="notif-message">{notif.message}</span>
 
@@ -99,7 +99,7 @@ export default function NotificationCenter() {
               <button
                 className="mark-read-btn"
                 onClick={(e) => {
-                  e.stopPropagation(); // prevent navigation
+                  e.stopPropagation();
                   handleMarkRead(notif._id);
                 }}
               >

@@ -1,0 +1,54 @@
+/* ======================================================
+   CALENDAR PAGE LAYOUT
+   ====================================================== */
+
+.calendar-page-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 28px; /* space between calendar & task list */
+  padding: 16px;
+}
+
+/* ======================================================
+   CALENDAR SECTION (TOP)
+   ====================================================== */
+
+/* Calendar component already has .calendar-container,
+   we enhance spacing contextually */
+.calendar-page-layout .calendar-container {
+  width: 100%;
+}
+
+/* ======================================================
+   TASK LIST SECTION (BOTTOM)
+   ====================================================== */
+
+/* TaskList root already uses .tasks-page */
+.calendar-page-layout .tasks-page {
+  padding: 0; /* prevent double padding */
+}
+
+/* Give task list a visual separation */
+.calendar-page-layout .tasks-page {
+  margin-top: 8px;
+}
+
+/* ======================================================
+   RESPONSIVE TWEAKS
+   ====================================================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .calendar-page-layout {
+    gap: 24px;
+    padding: 12px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .calendar-page-layout {
+    gap: 20px;
+    padding: 10px;
+  }
+}

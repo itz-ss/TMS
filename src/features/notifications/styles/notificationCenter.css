@@ -1,0 +1,145 @@
+/* ======================================================
+   NOTIFICATION CENTER
+   ====================================================== */
+
+.notification-center {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* ======================================================
+   HEADER
+   ====================================================== */
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.notification-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.mark-all-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mark-all-btn:hover {
+  background: #1d4ed8;
+}
+
+/* ======================================================
+   STATES
+   ====================================================== */
+
+.notification-loading,
+.notification-empty {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.notification-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.notification-error button {
+  margin-top: 6px;
+  background: transparent;
+  border: 1px solid #b91c1c;
+  color: #b91c1c;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* ======================================================
+   LIST
+   ====================================================== */
+
+.notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  transition: background 0.15s ease;
+}
+
+/* unread highlight */
+.notification-item.unread {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+/* clickable */
+.notification-item.clickable {
+  cursor: pointer;
+}
+
+.notification-item.clickable:hover {
+  background: #e0e7ff;
+}
+
+/* read */
+.notification-item.read {
+  opacity: 0.7;
+}
+
+/* ======================================================
+   MESSAGE & ACTIONS
+   ====================================================== */
+
+.notif-message {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.mark-read-btn {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mark-read-btn:hover {
+  text-decoration: underline;
+}
+
+/* ======================================================
+   RESPONSIVE
+   ====================================================== */
+
+@media (max-width: 480px) {
+  .notification-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}

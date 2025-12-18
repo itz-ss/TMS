@@ -1,27 +1,110 @@
+/* ======================================================
+   CLIENT TABS — DESIGN TOKENS
+   ====================================================== */
+:root {
+  --ct-bg: #ffffff;
+  --ct-bg-muted: #f1f5f9;
+
+  --ct-text-primary: #0f172a;
+  --ct-text-secondary: #475569;
+  --ct-text-muted: #94a3b8;
+
+  --ct-border: #e5e7eb;
+  --ct-accent: #2563eb;
+
+  --ct-radius: 10px;
+  --ct-transition: 0.2s ease;
+}
+
+/* ======================================================
+   DESKTOP TAB CONTAINER
+   ====================================================== */
 .client-tabs-container {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  padding: 6px;
+  background: var(--ct-bg);
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
   overflow-x: auto;
-  padding-bottom: 6px;
+  scrollbar-width: none; /* Firefox */
+}
+
+.client-tabs-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* ======================================================
+   INDIVIDUAL TAB
+   ====================================================== */
+.client-tab {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ct-text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--ct-transition);
   white-space: nowrap;
 }
 
-.client-tab {
-  background: #f1f1f1;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.15s;
+/* Hover */
+.client-tab:hover {
+  background: var(--ct-bg-muted);
+  color: var(--ct-text-primary);
 }
 
-.client-tab:hover { background: #e6e6e6; }
-
+/* Active */
 .client-tab.active {
-  background: #007bff;
-  color: white;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--ct-accent);
+  border-color: rgba(37, 99, 235, 0.3);
+  font-weight: 600;
 }
 
-.client-dropdown-container { width: 100%; }
-.client-dropdown { width: 100%; padding: 10px; border-radius: 6px; }
+/* ======================================================
+   MOBILE / OVERFLOW DROPDOWN
+   ====================================================== */
+.client-dropdown {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: var(--ct-radius);
+  border: 1px solid var(--ct-border);
+  background: var(--ct-bg);
+  color: var(--ct-text-primary);
+  cursor: pointer;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ct-text-muted) 50%),
+    linear-gradient(135deg, var(--ct-text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 12px) calc(50% - 3px);
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* Focus */
+.client-dropdown:focus {
+  outline: none;
+  border-color: var(--ct-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ======================================================
+   RESPONSIVE TUNING
+   ====================================================== */
+@media (max-width: 768px) {
+  .client-tabs-container {
+    padding: 4px;
+  }
+
+  .client-tab {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import "./styles/sidebar.css";
+import "./styles/layout.css";
 import { useAppSelector } from "../../store/hooks";
 import { selectPendingTaskCount } from "../../store/taskSlice";
 import { NavLink } from "react-router-dom";

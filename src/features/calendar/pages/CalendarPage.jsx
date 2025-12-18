@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Calendar from "../components/Calendar";
 import TaskList from "../../tasks/components/TaskList";
+import "../styles/calendarPage.css"
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -9,17 +10,19 @@ export default function CalendarPage() {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-      <Calendar
+    <div className="calendar-page-layout">
+      <Calendar 
+        className="calendar-container"
         selectedDate={selectedDate}
         onDaySelect={setSelectedDate}
         employeeId={selectedEmployee}
       />
 
       <TaskList
+        className="tasks-page"
         date={selectedDate}
         employeeId={selectedEmployee}
-        onEmployeeChange={setSelectedEmployee} // ✅ RENAMED PROP
+        onEmployeeChange={setSelectedEmployee}
       />
     </div>
   );

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import AuthLayout from "../components/AuthLayout";
 import http from "../../../services/httpClient";
+import "../styles/auth.css";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");

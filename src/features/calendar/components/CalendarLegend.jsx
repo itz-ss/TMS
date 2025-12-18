@@ -4,24 +4,19 @@ import {
   STATUS_LABELS,
   STATUS_RENDER_ORDER,
 } from "../constants";
+import "../styles/calendarLegend.css";
+
 
 export default function CalendarLegend() {
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 12 }}>
+    <div className="calendar-legend">
       {STATUS_RENDER_ORDER.map((status) => (
-        <div
-          key={status}
-          style={{ display: "flex", alignItems: "center", gap: 6 }}
-        >
+        <div key={status} className="calendar-legend-item">
           <div
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: "50%",
-              backgroundColor: STATUS_COLORS[status],
-            }}
+            className="calendar-legend-dot"
+            style={{ backgroundColor: STATUS_COLORS[status] }} // 🔑 MUST stay inline
           />
-          <span style={{ fontSize: 13 }}>
+          <span className="calendar-legend-label">
             {STATUS_LABELS[status]}
           </span>
         </div>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { loginThunk } from "../../../store/authSlice";
+import "../styles/auth.css";
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
@@ -50,9 +51,6 @@ export default function LoginPage() {
 
         <button type="submit" disabled={loading}>Login</button>
 
-        <p className="auth-footer">
-          Don&apos;t have an account? <a href="/register">Register</a>
-        </p>
       </form>
     </AuthLayout>
   );

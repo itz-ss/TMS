@@ -4,6 +4,7 @@ import {
   STATUS_COLORS,
   STATUS_RENDER_ORDER,
 } from "../constants";
+import "../styles/calendar.css"
 
 function getDotsForDay(daySummary) {
   if (!daySummary || typeof daySummary !== "object") return [];
@@ -17,7 +18,7 @@ function getDotsForDay(daySummary) {
 }
 
 /* =========================================================
-   DATE HELPERS (LOCAL TO CALENDAR)
+   DATE HELPERS
 ========================================================= */
 function toDateKey(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(
@@ -34,7 +35,7 @@ export default function Calendar({ onDaySelect, selectedDate, employeeId }) {
   const month = currentDate.getMonth();
 
   /* =========================================================
-     FETCH CALENDAR SUMMARY
+     FETCH SUMMARY
   ========================================================= */
   useEffect(() => {
     const ym = `${year}-${String(month + 1).padStart(2, "0")}`;
@@ -46,12 +47,8 @@ export default function Calendar({ onDaySelect, selectedDate, employeeId }) {
       .catch(console.error);
   }, [year, month, employeeId]);
 
-  useEffect(() => {
-    console.log("🟢 Calendar summary for employee:", employeeId, summary);
-  }, [summary, employeeId]);
-
   /* =========================================================
-     CALENDAR GRID LOGIC
+     GRID LOGIC
   ========================================================= */
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -64,102 +61,59 @@ export default function Calendar({ onDaySelect, selectedDate, employeeId }) {
      RENDER
   ========================================================= */
   return (
-    <div>
-      {/* ===== Header ===== */}
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))}>
+    <div className="calendar-container">
+      {/* ===== HEADER (DATE ON TOP) ===== */}
+      <div className="calendar-header">
+        <button
+          className="calendar-nav-btn"
+          onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
+        >
           ◀
         </button>
 
-        <h3>
+        <h3 className="calendar-title">
           {currentDate.toLocaleString("default", { month: "long" })} {year}
         </h3>
 
-        <button onClick={() => setCurrentDate(new Date(year, month + 1, 1))}>
+        <button
+          className="calendar-nav-btn"
+          onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
+        >
           ▶
         </button>
       </div>
 
-      {/* ===== Calendar Grid ===== */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          gap: 10,
-          marginTop: 12,
-        }}
-      >
+      {/* ===== GRID ===== */}
+      <div className="calendar-grid">
         {cells.map((day, index) => {
-          if (!day) return <div key={index} />;
+          if (!day) return <div key={index} className="calendar-empty-cell" />;
 
           const dateKey = toDateKey(year, month, day);
           const daySummary = summary[dateKey];
-
-          // ✅ DEBUG LOG — CORRECT PLACE
-          if (daySummary) {
-            console.log(
-              "📅",
-              dateKey,
-              "STATUS KEYS:",
-              Object.keys(daySummary)
-            );
-          }
-
           const dots = getDotsForDay(daySummary);
           const isSelected = selectedDate === dateKey;
 
           return (
             <div
               key={dateKey}
+              className={`calendar-day ${isSelected ? "selected" : ""}`}
               onClick={() => onDaySelect(dateKey)}
-              style={{
-                border: isSelected ? "2px solid #2563eb" : "1px solid #ddd",
-                backgroundColor: isSelected ? "#e8f0ff" : "white",
-                padding: 8,
-                textAlign: "center",
-                cursor: "pointer",
-                borderRadius: 6,
-                transition: "all 0.15s ease",
-              }}
             >
-              <div>{day}</div>
+              <div className="calendar-day-number">{day}</div>
 
               {/* ===== DOTS ===== */}
               {dots.length > 0 ? (
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    gap: 4,
-                    marginTop: 6,
-                    maxHeight: 16,
-                    overflow: "hidden",
-                  }}
-                >
+                <div className="calendar-dots">
                   {dots.map((dot) => (
                     <div
                       key={dot.status}
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: "50%",
-                        backgroundColor: dot.color,
-                      }}
+                      className="calendar-dot"
+                      style={{ backgroundColor: dot.color }} // 🔑 MUST STAY INLINE
                     />
                   ))}
                 </div>
               ) : (
-                <div
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    backgroundColor: "black",
-                    margin: "6px auto 0",
-                    opacity: 0.6,
-                  }}
-                />
+                <div className="calendar-dot calendar-dot-empty" />
               )}
             </div>
           );

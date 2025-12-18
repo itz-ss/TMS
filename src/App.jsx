@@ -7,6 +7,7 @@ import { socket, registerUserSocket, onNotification } from "./services/socket";
 import { receiveNotification, loadNotificationsThunk } from "./store/notificationSlice";
 import { ToastContainer } from "react-toastify";
 import { onForegroundFcmMessage } from "./firebase/fcm";
+import "./App.css"
 
 export default function App() {
   const dispatch = useAppDispatch();

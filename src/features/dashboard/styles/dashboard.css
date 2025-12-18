@@ -1,41 +1,88 @@
+/* ======================================================
+   DASHBOARD CONTAINER
+   ====================================================== */
+
 .dashboard-container {
-  padding: 20px;
+  padding: 16px;
 }
 
 .dashboard-title {
-  font-size: 26px;
-  font-weight: 600;
-  margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #0f172a;
 }
 
+/* ======================================================
+   CARDS
+   ====================================================== */
+
 .dashboard-cards {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
-  margin-top: 10px;
+  margin-bottom: 24px;
 }
 
 .dashboard-card {
-  border: 1px solid #ddd;
-  padding: 18px;
-  border-radius: 10px;
-  width: 220px;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-card h3 {
+  font-size: 14px;
+  color: #475569;
+  margin-bottom: 6px;
 }
 
 .dashboard-number {
-  font-size: 28px;
-  font-weight: bold;
-  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2563eb;
 }
 
-/* 🔥 New styling for user table */
+/* ======================================================
+   STATS
+   ====================================================== */
+
+.dashboard-stats-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-stats-list li {
+  font-size: 14px;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.dashboard-loading {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.dashboard-error {
+  color: #dc2626;
+  font-size: 14px;
+}
+
+/* ======================================================
+   TABLE
+   ====================================================== */
+
 .dashboard-table-container {
-  margin-top: 30px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
 .dashboard-subtitle {
-  font-size: 20px;
+  font-size: 16px;
+  font-weight: 600;
   margin-bottom: 12px;
 }
 
@@ -46,11 +93,56 @@
 
 .dashboard-table th,
 .dashboard-table td {
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #0f172a;
 }
 
 .dashboard-table th {
+  background: #f8fafc;
   text-align: left;
-  background: #f6f6f6;
+}
+
+.align-right {
+  text-align: right;
+}
+
+/* ======================================================
+   ACTIONS
+   ====================================================== */
+
+.role-select {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5f5;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.delete-btn:hover {
+  background: #fecaca;
+}
+
+/* ======================================================
+   RESPONSIVE
+   ====================================================== */
+
+@media (max-width: 480px) {
+  .dashboard-title {
+    font-size: 18px;
+  }
+
+  .dashboard-table th,
+  .dashboard-table td {
+    font-size: 13px;
+  }
 }

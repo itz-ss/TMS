@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useRef } from "react";
-import "./styles/topbar.css";
+import "./styles/layout.css";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import { logout } from "../../store/authSlice";
 
@@ -51,7 +51,7 @@ function Topbar() {
 
       <div className="topbar-right">
         <span className="topbar-username">{user?.name}</span>
-        <button onClick={handleLogout}>Logout</button>
+        <button className="logout" onClick={handleLogout}>Logout</button>
       </div>
     </header>
   );

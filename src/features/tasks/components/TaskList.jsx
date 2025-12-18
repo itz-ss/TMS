@@ -20,6 +20,7 @@ import ClientTabs from "/src/features/clients/components/ClientTabs";
 
 import { useNavigate, useLocation } from "react-router-dom";
 import CalendarLegend from "/src/features/calendar/components/CalendarLegend";
+import "../styles/TaskList.css";
 
 
 import {
@@ -344,31 +345,27 @@ async function handleAssign(taskId, userId) {
       {date && (
       <button
         onClick={() => navigate("/dashboard/calendar")}
-        style={{
-          marginBottom: 8,
-          background: "transparent",
-          border: "none",
-          color: "#007bff",
-          cursor: "pointer",
-          padding: 0,
-          fontSize: 14,
-        }}
+       className="back-link"
       >
         ← Back to Calendar
       </button>
     )}
 
-     <h2 style={{ marginBottom: 12 }}>
+     <h2 className="tasks-title">
       {date
         ? `Tasks for ${new Date(date).toLocaleDateString()}`
         : "Tasks"}
     </h2>
 
-    
+    {isCalendarView &&( 
+      <div className="legend">
+        <CalendarLegend/>
+      </div>
+     )}
 
       {canViewAll && users.length > 0 && (
-        <div style={{ maxWidth: 260, marginBottom: 12 }}>
-          <label style={{ fontSize: 13, color: "#555" }}>
+        <div className="employee-filter">
+          <label>
             Filter by employee
           </label>
           <select
@@ -378,8 +375,6 @@ async function handleAssign(taskId, userId) {
               setSelectedEmployee(value);      // local (optional)
               onEmployeeChange(value);         // 🔑 updates calendar
             }}
-
-            style={{ width: "100%", padding: 6, marginTop: 4 }}
           >
             <option value="">All employees</option>
             {users.map((u) => (
@@ -392,7 +387,7 @@ async function handleAssign(taskId, userId) {
       )}
 
       {/* CLIENT TABS / DROPDOWN */}
-      <div style={{ marginBottom: 12 }}>
+      <div className="client-tabs-wrapper">
         <ClientTabs
           clients={clients || []}
           selectedClient={selectedClient}
@@ -403,7 +398,7 @@ async function handleAssign(taskId, userId) {
 
       {/* CREATE BUTTON */}
       {canCreate && !isCalendarView && (
-        <div style={{ marginBottom: 12 }}>
+        <div className="create-task-wrapper">
           <button className="btn-primary" onClick={() => setShowForm((s) => !s)}>
             {showForm ? "Close" : "Create Task"}
           </button>
@@ -412,7 +407,7 @@ async function handleAssign(taskId, userId) {
 
       {/* CREATE FORM */}
       {showForm && canCreate && !isCalendarView && (
-        <form onSubmit={handleCreate} className="task-form" style={{ marginBottom: 16 }}>
+        <form onSubmit={handleCreate} className="task-form">
           <div>
             <label>Title</label>
             <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
@@ -430,8 +425,8 @@ async function handleAssign(taskId, userId) {
 
           <div>
             <label>Client</label>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <select style={{ flex: 1 }} value={form.client || ""} onChange={(e) => setForm({ ...form, client: e.target.value })}>
+            <div>
+              <select  value={form.client || ""} onChange={(e) => setForm({ ...form, client: e.target.value })}>
                 <option value="">Select client</option>
                 {clients.map((c) => (
                   <option key={c._id} value={c._id}>
@@ -439,13 +434,13 @@ async function handleAssign(taskId, userId) {
                   </option>
                 ))}
               </select>
-              <button type="button" className="btn-sm" style={{ backgroundColor: "#28a745", color: "#fff" }} onClick={() => setShowClientModal(true)}>
+              <button type="button" className="btn-sm" onClick={() => setShowClientModal(true)}>
                 + Add
               </button>
             </div>
           </div>
 
-          <div style={{ marginTop: 8 }}>
+          <div>
             <button type="submit" className="btn-primary">Create</button>
           </div>
         </form>
@@ -454,7 +449,7 @@ async function handleAssign(taskId, userId) {
       {/* CLIENT CREATE MODAL */}
       {showClientModal && !isCalendarView && (
         <div className="modal-overlay" onClick={() => setShowClientModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Create Client</h3>
             <form onSubmit={handleCreateClient}>
               <div>
@@ -472,7 +467,7 @@ async function handleAssign(taskId, userId) {
                 <input value={newClient.contact} onChange={(e) => setNewClient((p) => ({ ...p, contact: e.target.value }))} />
               </div>
 
-              <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+              <div >
                 <button className="btn-primary" type="submit">Create</button>
                 <button className="btn-secondary" type="button" onClick={() => setShowClientModal(false)}>Cancel</button>
               </div>
@@ -482,9 +477,9 @@ async function handleAssign(taskId, userId) {
       )}
 
       {/* Loading / Empty */}
-      {loading && <p>Loading tasks…</p>}
-      {error && <p className="error">{error}</p>}
-      {!loading && tasks.length === 0 && <p>No tasks yet.</p>}
+      {loading && <p  className="loading-text">Loading tasks…</p>}
+      {error && <p className="error-text">{error}</p>}
+      {!loading && tasks.length === 0 && <p className="empty-text">No tasks yet.</p>}
 
       {/* CONTENT */}
       {!loading && tasks.length > 0 && (
@@ -493,18 +488,18 @@ async function handleAssign(taskId, userId) {
           { !isCalendarView && !date && awaitingReview.length > 0 && (
             <div style={{ marginBottom: 16 }}>
               <h3 style={{ marginBottom: 8 }}>🔍 Review Requests ({awaitingReview.length})</h3>
-              <div className="review-requests-grid" style={{ display: "grid", gap: 12 }}>
+              <div className="review-requests-grid">
                 {awaitingReview.map((t) => (
-                  <div key={t._id} className="review-request-card" onClick={() => openTaskModal(t)} style={{ padding: 12, border: "1px solid #ddd", borderRadius: 8, cursor: "pointer" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <div key={t._id} className="review-request-card" onClick={() => openTaskModal(t)} >
+                    <div>
                       <div>
                         <strong>{t.title}</strong>
-                        <div style={{ fontSize: 13, color: "#666" }}>Assigned to: {t.assignee?.name || "-"}</div>
-                        <div style={{ fontSize: 12, color: "#666", marginTop: 8 }}>{t.submissionNotes}</div>
+                        <div>Assigned to: {t.assignee?.name || "-"}</div>
+                        <div >{t.submissionNotes}</div>
                       </div>
                       <div style={{ textAlign: "right" }}>
-                        <div className={getStatusBadge(t.status).class} style={{ padding: "6px 10px", borderRadius: 6 }}>{getStatusBadge(t.status).text}</div>
-                        <div style={{ marginTop: 8, fontSize: 12, color: "#666" }}>{getClientName(t.client)}</div>
+                        <div className={getStatusBadge(t.status).class} >{getStatusBadge(t.status).text}</div>
+                        <div >{getClientName(t.client)}</div>
                       </div>
                     </div>
                   </div>
@@ -515,20 +510,20 @@ async function handleAssign(taskId, userId) {
 
           {/* REVISION REQUESTS */}
           {!isCalendarView && !date && revisionRequests.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <h3 style={{ marginBottom: 8 }}>🟠 Revision Requests ({revisionRequests.length})</h3>
+            <div >
+              <h3 >🟠 Revision Requests ({revisionRequests.length})</h3>
               <div className="revision-requests-grid" style={{ display: "grid", gap: 12 }}>
                 {revisionRequests.map((t) => (
-                  <div key={t._id} className="revision-request-card" onClick={() => openTaskModal(t)} style={{ padding: 12, border: "2px solid #fd7e14", borderRadius: 8, backgroundColor: "#fff8f0", cursor: "pointer" }}>
+                  <div key={t._id} className="revision-request-card" onClick={() => openTaskModal(t)}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                       <div>
-                        <strong style={{ color: "#fd7e14" }}>{t.title}</strong>
-                        <div style={{ fontSize: 13, color: "#666" }}>Revision requested - Please resubmit your work</div>
-                        <div style={{ marginTop: 8, fontStyle: "italic" }}>{t.revisionNotes}</div>
+                        <strong>{t.title}</strong>
+                        <div >Revision requested - Please resubmit your work</div>
+                        <div>{t.revisionNotes}</div>
                       </div>
                       <div style={{ textAlign: "right" }}>
-                        <div className={getStatusBadge(t.status).class} style={{ padding: "6px 10px", borderRadius: 6 }}>{getStatusBadge(t.status).text}</div>
-                        <div style={{ marginTop: 8, fontSize: 12, color: "#666" }}>{getClientName(t.client)}</div>
+                        <div className={getStatusBadge(t.status).class} >{getStatusBadge(t.status).text}</div>
+                        <div>{getClientName(t.client)}</div>
                       </div>
                     </div>
                   </div>
@@ -538,27 +533,28 @@ async function handleAssign(taskId, userId) {
           )}
 
           {/* MY ASSIGNED TASKS table (unified columns) */}
-        { currentUser && ( <div style={{ marginBottom: 16 }}>
+        { currentUser && isCalendarView  && ( <div style={{ marginBottom: 16 }}>
             <h3 style={{ marginBottom: 8 }}>
               📋 My Assigned Tasks ({myTasks.length})
-              {tasksToSubmit.length > 0 && <span style={{ fontSize: 14, color: "#007bff", marginLeft: 8 }}>- {tasksToSubmit.length} need submission</span>}
+              {tasksToSubmit.length > 0 && <span >- {tasksToSubmit.length} need submission</span>}
             </h3>
 
             {myTasks.length === 0 ? (
-              <p style={{ color: "#666" }}>No tasks assigned to you.</p>
+              <p>No tasks assigned to you.</p>
             ) : (
-              <table className="tasks-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+              <div className="table-scroll-x">
+              <table className="tasks-table" >
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: 8 }}>Client</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Title</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Description</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Status</th>
-                    {date && <th style={{ textAlign: "left", padding: 8 }}>Submitted</th>}
-                    {date && <th style={{ textAlign: "left", padding: 8 }}>Revision</th>}
-                    {date && <th style={{ textAlign: "left", padding: 8 }}>Approved</th>}
-                    <th style={{ textAlign: "left", padding: 8 }}>Due Date</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Actions</th>
+                    <th >Client</th>
+                    <th >Title</th>
+                    <th >Description</th>
+                    <th >Status</th>
+                    {date && <th >Submitted</th>}
+                    {date && <th >Revision</th>}
+                    {date && <th >Approved</th>}
+                    <th >Due Date</th>
+                    {/* <th >Actions</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -568,48 +564,42 @@ async function handleAssign(taskId, userId) {
                     const expandedFlag = isExpanded(t._id);
                     return (
                       <tr key={t._id} style={{ verticalAlign: "top", borderTop: "1px solid #eee" }}>
-                        <td style={{ padding: 8, width: 160 }}>{getClientName(t.client)}</td>
-                        <td style={{ padding: 8, width: 220 }}><strong>{t.title}</strong></td>
+                        <td>{getClientName(t.client)}</td>
+                        <td><strong>{t.title}</strong></td>
 
-                        <td style={{ padding: 8, maxWidth: 420 }}>
+                        <td >
                           <div
+                            className="task-desc"
                             role="button"
                             tabIndex={0}
                             onClick={() => toggleExpand(t._id)}
                             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggleExpand(t._id); }}
-                            style={{
-                              cursor: "pointer",
-                              whiteSpace: expandedFlag ? "normal" : "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              maxWidth: "100%",
-                              display: "block",
-                            }}
+                          
                             title={expandedFlag ? "" : (t.description || "")}
                           >
                             {expandedFlag ? (t.description || "-") : truncated(t.description)}
                           </div>
                         </td>
 
-                       <td style={{ padding: 8 }}>
-                          <span className={badge.class} style={{ padding: "4px 8px", borderRadius: 4 }}>
+                       <td>
+                          <span className={badge.class} >
                             {badge.text}
                           </span>
                         </td>
 
-                        {date && <td style={{ padding: 8 }}>{formatDate(t.submittedAt)}</td>}
-                        {date && <td style={{ padding: 8 }}>{formatDate(t.revisionRequestedAt)}</td>}
-                        {date && <td style={{ padding: 8 }}>{formatDate(t.approvedAt)}</td>}
+                        {date && <td >{formatDate(t.submittedAt)}</td>}
+                        {date && <td >{formatDate(t.revisionRequestedAt)}</td>}
+                        {date && <td >{formatDate(t.approvedAt)}</td>}
 
                         <td style={{ padding: 8 }}>
                           {t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "-"}
                         </td>
 
 
-                        <td style={{ padding: 8 }}>{t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "-"}</td>
+                        {/* <td >{t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "-"}</td> */}
 
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
-                          <button onClick={() => openTaskModal(t)} className="btn-sm" style={{ backgroundColor: "#007bff", color: "white" }}>
+                        <td >
+                          <button onClick={() => openTaskModal(t)} className="btn-sm" >
                             View
                           </button>
                           {canSubmitBtn && (
@@ -623,6 +613,7 @@ async function handleAssign(taskId, userId) {
                   })}
                 </tbody>
               </table>
+              </div>
             )}
           </div>)}
 
@@ -630,17 +621,17 @@ async function handleAssign(taskId, userId) {
           {!isCalendarView && canViewAll && (
             <div style={{ marginBottom: 16 }}>
               <h3 style={{ marginBottom: 8 }}>📊 All Tasks ({tasks.length})</h3>
-
-              <table className="tasks-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+              <div className="table-scroll-x">
+              <table className="tasks-table" >
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: 8 }}>Client</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Title</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Description</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Assignee</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Status</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Due</th>
-                    <th style={{ textAlign: "left", padding: 8 }}>Actions</th>
+                    <th >Client</th>
+                    <th >Title</th>
+                    <th >Description</th>
+                    <th >Assignee</th>
+                    <th >Status</th>
+                    <th >Due</th>
+                    <th >Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -648,30 +639,25 @@ async function handleAssign(taskId, userId) {
                     const badge = getStatusBadge(t.status);
                     return (
                       <tr key={t._id} style={{ verticalAlign: "top", borderTop: "1px solid #eee" }}>
-                        <td style={{ padding: 8, width: 160 }}>{getClientName(t.client)}</td>
-                        <td style={{ padding: 8, width: 220 }}><strong>{t.title}</strong></td>
-                        <td style={{ padding: 8, maxWidth: 420 }}>
+                        <td>{getClientName(t.client)}</td>
+                        <td ><strong>{t.title}</strong></td>
+                        <td >
                           <div
+                          className="task-desc"
                             role="button"
                             tabIndex={0}
                             onClick={() => toggleExpand(t._id)}
                             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggleExpand(t._id); }}
-                            style={{
-                              cursor: "pointer",
-                              whiteSpace: isExpanded(t._id) ? "normal" : "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              display: "block",
-                            }}
+                           
                             title={isExpanded(t._id) ? "" : (t.description || "")}
                           >
                             {isExpanded(t._id) ? (t.description || "-") : truncated(t.description)}
                           </div>
                         </td>
-                        <td style={{ padding: 8 }}>{t.assignee?.name || "-"}</td>
-                        <td style={{ padding: 8 }}><span className={badge.class} style={{ padding: "4px 8px", borderRadius: 4 }}>{badge.text}</span></td>
-                        <td style={{ padding: 8 }}>{t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "-"}</td>
-                        <td style={{ padding: 8, display: "flex", gap: 8 }}>
+                        <td>{t.assignee?.name || "-"}</td>
+                        <td ><span className={badge.class} style={{ padding: "4px 8px", borderRadius: 4 }}>{badge.text}</span></td>
+                        <td >{t.dueDate ? new Date(t.dueDate).toLocaleDateString() : "-"}</td>
+                        <td >
                           <button onClick={() => openTaskModal(t)} className="btn-sm">View</button>
                           {canAssign && !t.assignee && (
                             <select defaultValue="" onChange={(e) => handleAssign(t._id, e.target.value)}>
@@ -686,6 +672,7 @@ async function handleAssign(taskId, userId) {
                   })}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
         </>
