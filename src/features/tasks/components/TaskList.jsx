@@ -76,6 +76,7 @@ export default function TaskList({ date, employeeId,  onEmployeeChange,}) {
   const canRevise = useAppSelector(selectCanReviseTask);
   const canViewAll = useAppSelector(selectCanViewAllTasks);
 
+  // const isEmployee = currentUser?.role === "Employee";
 
   const activeEmployeeId = selectedEmployee || (currentUser?.role === "employee" ? currentUser._id : null);
 
@@ -533,7 +534,7 @@ async function handleAssign(taskId, userId) {
           )}
 
           {/* MY ASSIGNED TASKS table (unified columns) */}
-        { currentUser && isCalendarView  && ( <div style={{ marginBottom: 16 }}>
+        { currentUser && ( <div style={{ marginBottom: 16 }}>
             <h3 style={{ marginBottom: 8 }}>
               📋 My Assigned Tasks ({myTasks.length})
               {tasksToSubmit.length > 0 && <span >- {tasksToSubmit.length} need submission</span>}
